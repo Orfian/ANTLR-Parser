@@ -8,15 +8,9 @@ statement: type (ID',')* ID';'                                          #declara
          | '{' statement* '}'                                           #blockStatement
          | 'if' '(' expression ')' statement ('else' statement)?        #ifStatement
          | 'while' '(' expression ')' statement                         #whileStatement
+         | 'do' statement 'while' '(' expression ')' ';'                #doWhileStatement
          | expression';'                                                #expressionStatement
-         | ';'                                                          #emptyStatement
-         ;
-
-type: 'int'
-    | 'float'
-    | 'bool'
-    | 'string'
-    ;
+         | ';'                                                          #emptyStatement;
 
 expression: '-' expression                          # unaryMinus
           | '!' expression                          # logicalNot
@@ -30,14 +24,17 @@ expression: '-' expression                          # unaryMinus
           | expression '||' expression              # logical
           | <assoc=right> ID '=' expression         # assignment
           | ID                                      # identifier
-          | literal                                 # variable
-          ;
+          | literal                                 # variable;
+
+type: 'int'
+    | 'float'
+    | 'bool'
+    | 'string';
 
 literal: INT
        | FLOAT
        | BOOL
-       | STRING
-       ;
+       | STRING;
 
 
 INT :       '0'|[1-9][0-9]* ;
@@ -51,5 +48,4 @@ WS :            [ \t\r\n\u000C]+    -> skip;
 
 fragment EscapeSequence:
     '\\' 'u005c'? [btnfr"'\\]
-  | '\\' 'u005c'? ([0-3]? [0-7])? [0-7]
-;
+  | '\\' 'u005c'? ([0-3]? [0-7])? [0-7];
