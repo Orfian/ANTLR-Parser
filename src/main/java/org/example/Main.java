@@ -1,8 +1,10 @@
 package org.example;
 
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.example.classes.*;
 
 import java.io.IOException;
 
@@ -18,11 +20,17 @@ public class Main {
         lgLexer lexer = new lgLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         lgParser parser = new lgParser(tokens);
+        ParseTree tree = parser.program();
 
-        System.out.println(parser.program().toStringTree(parser));
+        System.out.println(tree.toStringTree(parser));
 
         if (parser.getNumberOfSyntaxErrors() == 0) {
             System.out.println("The input is a valid LG program.");
+
+            TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
+            typeCheckVisitor.visit(tree);
+
+            Errors.printErrors();
         } else {
             System.out.println("The input is not a valid LG program.");
         }

@@ -1,1 +1,1 @@
-do write 5; while (true);
+while (true) a = 5; // infinite loop
