@@ -99,7 +99,7 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
             return Type.ERROR;
         }
 
-        if ((leftType == Type.INT && rightType == Type.FLOAT) || (leftType == Type.FLOAT && rightType == Type.INT) || (leftType == Type.FLOAT && rightType == Type.FLOAT)) {
+        if ((leftType == Type.FLOAT && rightType == Type.INT) || (leftType == Type.FLOAT && rightType == Type.FLOAT)) {
             return Type.FLOAT;
         }
 
