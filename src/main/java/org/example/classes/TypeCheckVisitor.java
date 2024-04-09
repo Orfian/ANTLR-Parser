@@ -1,8 +1,26 @@
 package org.example.classes;
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.example.*;
 
 public class TypeCheckVisitor extends lgBaseVisitor<Type> {
     private final SymbolTable SymbolTable = new SymbolTable();
+
+    @Override
+    public Type visitDeclarationStatement(lgParser.DeclarationStatementContext ctx) {
+        if (visit(ctx.type()) == Type.ERROR) {
+            Errors.addError(ctx.type().start, "Invalid type.");
+            return Type.ERROR;
+        }
+
+        for (TerminalNode terminalNode : ctx.ID()) {
+            Token token = terminalNode.getSymbol();
+            if (!SymbolTable.addSymbol(token, visit(ctx.type()))) {
+                return Type.ERROR;
+            }
+        }
+        return null;
+    }
 
     @Override
     public Type visitIfStatement(lgParser.IfStatementContext ctx) {
@@ -197,5 +215,28 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
             case lgParser.BOOL -> Type.BOOL;
             default -> Type.ERROR;
         };
+    }
+
+    @Override
+    public Type visitTernary(lgParser.TernaryContext ctx) {
+        Type conditionType = (Type) visit(ctx.expression(0));
+        Type trueType = (Type) visit(ctx.expression(1));
+        Type falseType = (Type) visit(ctx.expression(2));
+
+        if (conditionType != Type.BOOL) {
+            Errors.addError(ctx.start, "Ternary condition must be of type bool.");
+            return Type.ERROR;
+        }
+
+        if (trueType == falseType) {
+            return trueType;
+        }
+        else if ((trueType == Type.INT && falseType == Type.FLOAT) || (trueType == Type.FLOAT && falseType == Type.INT) || (trueType == Type.FLOAT && falseType == Type.FLOAT)) {
+            return Type.FLOAT;
+        }
+        else {
+            Errors.addError(ctx.start, "Ternary expressions must be of the same type.");
+            return Type.ERROR;
+        }
     }
 }

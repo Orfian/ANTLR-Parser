@@ -12,19 +12,20 @@ statement: type (ID',')* ID';'                                          #declara
          | expression';'                                                #expressionStatement
          | ';'                                                          #emptyStatement;
 
-expression: '-' expression                          # unaryMinus
-          | '!' expression                          # logicalNot
-          | '(' expression ')'                      # parentheses
-          | expression op=('*'|'/'|'%') expression  # arithmetic
-          | expression op=('+'|'-') expression      # arithmetic
-          | expression '.' expression               # concatenation
-          | expression op=('<'|'>') expression      # relational
-          | expression op=('=='|'!=') expression    # equality
-          | expression '&&' expression              # logical
-          | expression '||' expression              # logical
-          | <assoc=right> ID '=' expression         # assignment
-          | ID                                      # identifier
-          | literal                                 # variable;
+expression: '-' expression                           # unaryMinus
+          | '!' expression                           # logicalNot
+          | '(' expression ')'                       # parentheses
+          | expression op=('*'|'/'|'%') expression   # arithmetic
+          | expression op=('+'|'-') expression       # arithmetic
+          | expression '.' expression                # concatenation
+          | expression op=('<'|'>') expression       # relational
+          | expression op=('=='|'!=') expression     # equality
+          | expression '&&' expression               # logical
+          | expression '||' expression               # logical
+          | expression '?' expression ':' expression # ternary
+          | <assoc=right> ID '=' expression          # assignment
+          | ID                                       # identifier
+          | literal                                  # variable;
 
 type: 'int'
     | 'float'
