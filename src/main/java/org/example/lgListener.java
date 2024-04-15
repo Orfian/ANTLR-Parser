@@ -246,18 +246,6 @@ public interface lgListener extends ParseTreeListener {
 	 */
 	void exitEquality(lgParser.EqualityContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ternary}
-	 * labeled alternative in {@link lgParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterTernary(lgParser.TernaryContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code ternary}
-	 * labeled alternative in {@link lgParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitTernary(lgParser.TernaryContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code logical}
 	 * labeled alternative in {@link lgParser#expression}.
 	 * @param ctx the parse tree

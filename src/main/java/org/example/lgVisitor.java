@@ -150,13 +150,6 @@ public interface lgVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEquality(lgParser.EqualityContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code ternary}
-	 * labeled alternative in {@link lgParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTernary(lgParser.TernaryContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code logical}
 	 * labeled alternative in {@link lgParser#expression}.
 	 * @param ctx the parse tree

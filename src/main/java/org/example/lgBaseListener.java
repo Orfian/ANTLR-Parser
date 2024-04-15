@@ -257,18 +257,6 @@ public class lgBaseListener implements lgListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTernary(lgParser.TernaryContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTernary(lgParser.TernaryContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterLogical(lgParser.LogicalContext ctx) { }
 	/**
 	 * {@inheritDoc}
