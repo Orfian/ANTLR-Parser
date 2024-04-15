@@ -7,6 +7,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.example.classes.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
@@ -30,7 +32,17 @@ public class Main {
             TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
             typeCheckVisitor.visit(tree);
 
-            Errors.printErrors();
+            if (Errors.getErrorsSize() > 0) {
+                Errors.printErrors();
+                return;
+            }
+
+            CompilerVisitor compilerVisitor = new CompilerVisitor(typeCheckVisitor.getTypes());
+            List<Instruction> instructions = compilerVisitor.visit(tree);
+
+            for (Instruction instruction : instructions) {
+                System.out.println(instruction);
+            }
         } else {
             System.out.println("The input is not a valid LG program.");
         }

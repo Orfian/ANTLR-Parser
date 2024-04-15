@@ -23,4 +23,8 @@ public class Errors {
             System.out.println(error);
         }
     }
+
+    public static int getErrorsSize() {
+        return errorsData.size();
+    }
 }

@@ -1,1 +1,2 @@
-while (true) a = 5; // infinite loop
+float a, b;
+a = b = 1 + 1.0;

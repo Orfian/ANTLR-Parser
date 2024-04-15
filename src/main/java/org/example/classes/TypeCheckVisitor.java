@@ -1,8 +1,14 @@
 package org.example.classes;
+import lombok.Getter;
+import org.antlr.v4.runtime.tree.ParseTreeProperty;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.example.*;
 
 public class TypeCheckVisitor extends lgBaseVisitor<Type> {
     private final SymbolTable SymbolTable = new SymbolTable();
+
+    @Getter
+    private final ParseTreeProperty<Type> Types = new ParseTreeProperty<>();
 
     @Override
     public Type visitIfStatement(lgParser.IfStatementContext ctx) {
@@ -44,12 +50,21 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
 
     @Override
     public Type visitParentheses(lgParser.ParenthesesContext ctx) {
+        Types.put(ctx, visit(ctx.expression()));
         return visit(ctx.expression());
     }
 
     @Override
     public Type visitIdentifier(lgParser.IdentifierContext ctx) {
+        Types.put(ctx, SymbolTable.getSymbol(ctx.ID().getSymbol()));
         return SymbolTable.getSymbol(ctx.ID().getSymbol());
+    }
+
+    @Override
+    public Type visitVariable(lgParser.VariableContext ctx) {
+        Type type = (Type) visit(ctx.literal());
+        Types.put(ctx, type);
+        return type;
     }
 
     @Override
@@ -59,6 +74,7 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
             return Type.ERROR;
         }
 
+        Types.put(ctx, Type.BOOL);
         return Type.BOOL;
     }
 
@@ -69,6 +85,7 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
             return Type.ERROR;
         }
 
+        Types.put(ctx, Type.STRING);
         return Type.STRING;
     }
 
@@ -81,7 +98,11 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
             return Type.ERROR;
         }
 
-        if ((leftType == Type.INT && rightType == Type.FLOAT) || (leftType == Type.FLOAT && rightType == Type.INT) || (leftType == Type.FLOAT && rightType == Type.FLOAT)) {
+        Types.put(ctx.ID(), leftType);
+        Types.put(ctx.expression(), rightType);
+
+        if ((leftType == Type.FLOAT && rightType == Type.INT) || (leftType == Type.FLOAT && rightType == Type.FLOAT)) {
+            Types.put(ctx, Type.FLOAT);
             return Type.FLOAT;
         }
 
@@ -90,15 +111,36 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
             return Type.ERROR;
         }
 
+        Types.put(ctx, leftType);
         return leftType;
+    }
+
+    @Override
+    public Type visitDeclarationStatement(lgParser.DeclarationStatementContext ctx) {
+        Type type = (Type) visit(ctx.type());
+
+        if (type == Type.ERROR) {
+            return Type.ERROR;
+        }
+
+        for (TerminalNode id : ctx.ID()) {
+            if (!SymbolTable.addSymbol(id.getSymbol(), type)) {
+                return Type.ERROR;
+            }
+            Types.put(id, type);
+        }
+
+        return null;
     }
 
     @Override
     public Type visitUnaryMinus(lgParser.UnaryMinusContext ctx) {
         if ((Type) visit(ctx.expression()) == Type.INT) {
+            Types.put(ctx, Type.INT);
             return Type.INT;
         }
         else if ((Type) visit(ctx.expression()) == Type.FLOAT) {
+            Types.put(ctx, Type.FLOAT);
             return Type.FLOAT;
         }
         else {
@@ -114,13 +156,16 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
 
         if (ctx.op.getText().equals("%") && (leftType != Type.INT || rightType != Type.INT)) {
             Errors.addError(ctx.start, "Modulo expressions must be of type int.");
+            Errors.addError(ctx.start, "Modulo expressions must be of type int.");
             return Type.ERROR;
         }
 
         if (leftType == Type.INT && rightType == Type.INT) {
+            Types.put(ctx, Type.INT);
             return Type.INT;
         }
         else if ((leftType == Type.INT && rightType == Type.FLOAT) || (leftType == Type.FLOAT && rightType == Type.INT) || (leftType == Type.FLOAT && rightType == Type.FLOAT)) {
+            Types.put(ctx, Type.FLOAT);
             return Type.FLOAT;
         }
         else {
@@ -135,9 +180,11 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
         Type rightType = (Type) visit(ctx.expression(1));
 
         if (leftType == Type.INT && rightType == Type.INT) {
+            Types.put(ctx, Type.BOOL);
             return Type.BOOL;
         }
         else if ((leftType == Type.INT && rightType == Type.FLOAT) || (leftType == Type.FLOAT && rightType == Type.INT) || (leftType == Type.FLOAT && rightType == Type.FLOAT)) {
+            Types.put(ctx, Type.BOOL);
             return Type.BOOL;
         }
         else {
@@ -152,6 +199,7 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
         Type rightType = (Type) visit(ctx.expression(1));
 
         if (leftType == rightType) {
+            Types.put(ctx, Type.BOOL);
             return Type.BOOL;
         }
         else {
@@ -166,6 +214,7 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
         Type rightType = (Type) visit(ctx.expression(1));
 
         if (leftType == Type.BOOL && rightType == Type.BOOL) {
+            Types.put(ctx, Type.BOOL);
             return Type.BOOL;
         }
         else {
@@ -177,10 +226,22 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
     @Override
     public Type visitType(lgParser.TypeContext ctx) {
         return switch (ctx.getText()) {
-            case "int" -> Type.INT;
-            case "float" -> Type.FLOAT;
-            case "string" -> Type.STRING;
-            case "bool" -> Type.BOOL;
+            case "int" -> {
+                Types.put(ctx, Type.INT);
+                yield Type.INT;
+            }
+            case "float" -> {
+                Types.put(ctx, Type.FLOAT);
+                yield Type.FLOAT;
+            }
+            case "string" -> {
+                Types.put(ctx, Type.STRING);
+                yield Type.STRING;
+            }
+            case "bool" -> {
+                Types.put(ctx, Type.BOOL);
+                yield Type.BOOL;
+            }
             default -> {
                 Errors.addError(ctx.start, "Invalid type: " + ctx.getText());
                 yield Type.ERROR;
@@ -191,11 +252,27 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
     @Override
     public Type visitLiteral(lgParser.LiteralContext ctx) {
         return switch (ctx.getStart().getType()) {
-            case lgParser.INT -> Type.INT;
-            case lgParser.FLOAT -> Type.FLOAT;
-            case lgParser.STRING -> Type.STRING;
-            case lgParser.BOOL -> Type.BOOL;
-            default -> Type.ERROR;
+            case lgParser.INT -> {
+                Types.put(ctx, Type.INT);
+                yield Type.INT;
+            }
+            case lgParser.FLOAT -> {
+                Types.put(ctx, Type.FLOAT);
+                yield Type.FLOAT;
+            }
+            case lgParser.STRING -> {
+                Types.put(ctx, Type.STRING);
+                yield Type.STRING;
+            }
+            case lgParser.BOOL -> {
+                Types.put(ctx, Type.BOOL);
+                yield Type.BOOL;
+            }
+            default -> {
+                Errors.addError(ctx.start, "Invalid literal: " + ctx.getText());
+                yield Type.ERROR;
+            }
         };
     }
 }
+

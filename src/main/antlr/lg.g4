@@ -20,8 +20,8 @@ expression: '-' expression                          # unaryMinus
           | expression '.' expression               # concatenation
           | expression op=('<'|'>') expression      # relational
           | expression op=('=='|'!=') expression    # equality
-          | expression '&&' expression              # logical
-          | expression '||' expression              # logical
+          | expression op='&&' expression           # logical
+          | expression op='||' expression           # logical
           | <assoc=right> ID '=' expression         # assignment
           | ID                                      # identifier
           | literal                                 # variable;
