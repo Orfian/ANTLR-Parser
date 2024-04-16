@@ -340,6 +340,7 @@ public class CompilerVisitor extends lgBaseVisitor<List<Instruction>> {
 
         if (leftType == Type.INT && rightType == Type.FLOAT) {
             instructions.add(Instruction.builder().type(InstructionType.ITOF).build());
+            leftType = Type.FLOAT;
         }
 
         instructions.addAll(visit(ctx.expression(1)));
@@ -350,19 +351,19 @@ public class CompilerVisitor extends lgBaseVisitor<List<Instruction>> {
 
         switch (ctx.op.getText()) {
             case "+":
-                instructions.add(Instruction.builder().type(InstructionType.ADD).build());
+                instructions.add(Instruction.builder().type(InstructionType.ADD).value(leftType).build());
                 break;
             case "-":
-                instructions.add(Instruction.builder().type(InstructionType.SUB).build());
+                instructions.add(Instruction.builder().type(InstructionType.SUB).value(leftType).build());
                 break;
             case "*":
-                instructions.add(Instruction.builder().type(InstructionType.MUL).build());
+                instructions.add(Instruction.builder().type(InstructionType.MUL).value(leftType).build());
                 break;
             case "/":
-                instructions.add(Instruction.builder().type(InstructionType.DIV).build());
+                instructions.add(Instruction.builder().type(InstructionType.DIV).value(leftType).build());
                 break;
             case "%":
-                instructions.add(Instruction.builder().type(InstructionType.MOD).build());
+                instructions.add(Instruction.builder().type(InstructionType.MOD).value(leftType).build());
                 break;
         }
 
