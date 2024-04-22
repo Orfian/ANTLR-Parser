@@ -34,9 +34,9 @@ public class CompilerVisitor extends lgBaseVisitor<List<Instruction>> {
         Type type = Types.get(ctx.type());
 
         defaultValue = switch (type) {
-            case INT -> 0;
-            case FLOAT -> 0.0f;
-            case BOOL -> false;
+            case INT -> "0";
+            case FLOAT -> "0.0";
+            case BOOL -> "false";
             case STRING -> "";
             default -> defaultValue;
         };
@@ -44,7 +44,7 @@ public class CompilerVisitor extends lgBaseVisitor<List<Instruction>> {
         for (TerminalNode id : ctx.ID()) {
             instructions.add(Instruction.builder()
                     .type(InstructionType.PUSH)
-                    .value(defaultValue)
+                    .value(new Object[]{Types.get(ctx.type()), defaultValue})
                     .build());
 
             instructions.add(Instruction.builder()
