@@ -9,6 +9,7 @@ import org.example.classes.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
@@ -43,6 +44,10 @@ public class Main {
             for (Instruction instruction : instructions) {
                 System.out.println(instruction);
             }
+
+            System.out.println("-----------------------------------------");
+            Scanner scanner = new Scanner(System.in);
+            Processor processor = new Processor(instructions, scanner);
         } else {
             System.out.println("The input is not a valid LG program.");
         }
