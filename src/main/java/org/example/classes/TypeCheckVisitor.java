@@ -274,5 +274,12 @@ public class TypeCheckVisitor extends lgBaseVisitor<Type> {
             }
         };
     }
+
+    @Override
+    public Type visitReadStatement(lgParser.ReadStatementContext ctx) {
+        Type type = SymbolTable.getSymbol(ctx.ID().get(0).getSymbol());
+        Types.put(ctx.ID().get(0), type);
+        return super.visitReadStatement(ctx);
+    }
 }
 
